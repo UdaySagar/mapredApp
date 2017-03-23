@@ -1,5 +1,6 @@
+package mainapp;
+
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,6 +12,8 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import customwritable.colonSepWritable;
+
 public class mapredApp {
 
     public static class TokenizerMapper
@@ -18,14 +21,17 @@ public class mapredApp {
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
+        colonSepWritable cw = new colonSepWritable();
+        Text state = new Text();
+        Text city = new Text();
 
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString());
-            while (itr.hasMoreTokens()) {
-                word.set(itr.nextToken());
-                context.write(word, one);
-            }
+            String[] itr = value.toString().split(":");
+            cw.setCity(itr[0]);
+            cw.setState(itr[1]);
+            context.write(value, one);
+
         }
     }
 
